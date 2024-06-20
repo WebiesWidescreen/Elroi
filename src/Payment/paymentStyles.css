@@ -1,0 +1,126 @@
+/* ADV PDF Style */
+.advBill {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  width: 180mm;
+  margin: 0 auto;
+  line-height: 1;
+  background-color: #dc1a18;
+  color: #fff;
+}
+
+.logoHeadTxt {
+  text-align: center;
+  font-size: 15px;
+  color: #dc1a18;
+  border: none;
+  background-color: #e3b56d;
+  max-width: 200px;
+  margin: 0 auto;
+  border-radius: 11px;
+}
+
+.logoSty {
+  text-align: center;
+  font-size: 35px;
+  font-weight: 200;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+/* ORDER FORM PDF Style */
+.orderForm {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  width: 180mm;
+  margin: 0 auto;
+  line-height: 0.7;
+  background-color: #dc1a18;
+  color: #fff;
+}
+
+.logoHeadTxtOrder {
+  text-align: center;
+  max-width: 155px;
+  margin: 0 auto;
+  border-radius: 11px;
+  padding: 5px;
+  background-color: #e3b56d;
+  color: #dc1a18;
+}
+
+.tblHeadSty {
+  border-bottom-right-radius: 20px;
+  max-width: 120px;
+  position: relative;
+  bottom: 25px;
+  right: 25px;
+  background-color: #fff;
+  color: #000;
+  text-align: center;
+  padding: 4px;
+}
+
+.tblHead2Sty {
+  border-bottom-left-radius: 20px;
+  max-width: 100px;
+  position: relative;
+  bottom: 25px;
+  left: 51%;
+  background-color: #fff;
+  color: #000;
+  text-align: center;
+  padding: 4px;
+}
+
+/* PDF Style */
+/* .orderForm {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  width: 210mm;
+  margin: 0 auto;
+  line-height: 1;
+}
+
+.logoSty {
+  text-align: center;
+  font-size: 35px;
+  font-weight: 200;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.logoHeadTxt {
+  text-align: center;
+  border: 2px solid #000;
+  max-width: 155px;
+  margin: 0 auto;
+  border-radius: 11px;
+  padding: 5px;
+}
+
+.subTxtSty {
+  float: right;
+}
+
+.tblHeadSty {
+  border-bottom-right-radius: 20px;
+  max-width: 120px;
+  position: relative;
+  bottom: 25px;
+  right: 25px;
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  padding: 4px;
+}
+
+.tblHead2Sty {
+  border-bottom-left-radius: 20px;
+  max-width: 100px;
+  position: relative;
+  bottom: 25px;
+  left: 58%;
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  padding: 4px;
+} */
