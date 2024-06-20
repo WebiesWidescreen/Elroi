@@ -218,7 +218,6 @@ const PaymentScreen = () => {
       )}`;
       window.open(url, "_blank");
 
-      // console.log("hell");
       // const mongoClient = new MongoClient(
       //   "mongodb+srv://webieswidescreen:jce4mAvtpW5h48V5@elroipay.xc5xyqj.mongodb.net/"
       // );
