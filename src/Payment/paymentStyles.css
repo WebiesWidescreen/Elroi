@@ -1,3 +1,14 @@
+.btnCon {
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .mobLogoImg {
+    height: 80px;
+  }
+}
+
 /* ADV PDF Style */
 .advBill {
   padding: 20px;

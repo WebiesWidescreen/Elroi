@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Button, Card, Form, Spinner } from "react-bootstrap";
-import Modal from "react-bootstrap/Modal";
+import { Button, Card, Form, Spinner, Modal } from "react-bootstrap";
 import InputMask from "react-input-mask";
 import CurrencyInput from "react-currency-input-field";
 // import { MongoClient } from "mongodb";
@@ -8,7 +7,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import moment from "moment";
 import { toWords } from "number-to-words";
-import { saveAs } from "file-saver";
+// import { saveAs } from "file-saver";
 import "./paymentStyles.css";
 import ElroiLogo from "../assets/Images/ElroiLogo.png";
 
@@ -85,31 +84,31 @@ const PaymentScreen = () => {
   };
 
   const onViewAdvBill = () => {
-    if (localState.name == "") {
+    if (localState.name === "") {
       alert("Please enter the name");
       refNameInput?.current?.focus();
-    } else if (localState.phone == "") {
+    } else if (localState.phone === "") {
       alert("Please enter the phone number");
       refPhoneInput?.current?.focus();
     } else if (localState.phone.length < 10) {
       alert("Please enter the valid phone number");
       refPhoneInput?.current?.focus();
-    } else if (localState.email == "") {
+    } else if (localState.email === "") {
       alert("Please enter the mail id");
       refEmailInput?.current?.focus();
     } else if (!localState.email.includes("@")) {
       alert("Please enter the valid @gmail id");
       refEmailInput?.current?.focus();
-    } else if (localState.cardCode == "") {
+    } else if (localState.cardCode === "") {
       alert("Please enter the card code");
       refCardCodeInput?.current?.focus();
-    } else if (localState.quantity == "") {
+    } else if (localState.quantity === "") {
       alert("Please enter the qty");
       refQtyInput?.current?.focus();
-    } else if (localState.totalAmount == 0) {
+    } else if (localState.totalAmount === 0) {
       alert("Please enter the total amount");
       refTotalInput?.current?.focus();
-    } else if (localState.signImg == "") {
+    } else if (localState.signImg === "") {
       alert("Please upload signImg");
       refSignInput?.current?.focus();
     } else {
@@ -122,31 +121,31 @@ const PaymentScreen = () => {
   };
 
   const onViewOrderBill = () => {
-    if (localState.name == "") {
+    if (localState.name === "") {
       alert("Please enter the name");
       refNameInput?.current?.focus();
-    } else if (localState.phone == "") {
+    } else if (localState.phone === "") {
       alert("Please enter the phone number");
       refPhoneInput?.current?.focus();
     } else if (localState.phone.length < 10) {
       alert("Please enter the valid phone number");
       refPhoneInput?.current?.focus();
-    } else if (localState.email == "") {
+    } else if (localState.email === "") {
       alert("Please enter the mail id");
       refEmailInput?.current?.focus();
     } else if (!localState.email.includes("@")) {
       alert("Please enter the valid @gmail id");
       refEmailInput?.current?.focus();
-    } else if (localState.cardCode == "") {
+    } else if (localState.cardCode === "") {
       alert("Please enter the card code");
       refCardCodeInput?.current?.focus();
-    } else if (localState.quantity == "") {
+    } else if (localState.quantity === "") {
       alert("Please enter the qty");
       refQtyInput?.current?.focus();
-    } else if (localState.totalAmount == 0) {
+    } else if (localState.totalAmount === 0) {
       alert("Please enter the total amount");
       refTotalInput?.current?.focus();
-    } else if (localState.signImg == "") {
+    } else if (localState.signImg === "") {
       alert("Please upload signImg");
       refSignInput?.current?.focus();
     } else {
@@ -169,7 +168,7 @@ const PaymentScreen = () => {
       const contentHeight = pageHeight - margin * 2;
 
       // Increase scale for better resolution
-      const scale = 2;
+      const scale = 1;
       let canvas = await html2canvas(element, { scale: scale });
       let imgData = canvas.toDataURL("image/png");
       let imgWidth = contentWidth;
@@ -239,7 +238,13 @@ const PaymentScreen = () => {
       <header>
         <div className="container mt-4">
           <h1 className="text-center text-md-left">
-            <img src={ElroiLogo} height={150} /> Elroi Advance Payment
+            <img
+              src={ElroiLogo}
+              height={150}
+              className="mobLogoImg"
+              alt="Logo"
+            />{" "}
+            Elroi Advance Payment
           </h1>
         </div>
       </header>
@@ -420,31 +425,26 @@ const PaymentScreen = () => {
                       </div>
                     </Form.Group>
 
-                    <div className="row align-items-center  m-3">
-                      <div className="col-md-3" />
-                      <div className="col-md-3">
-                        <Button
-                          variant="danger"
-                          disabled={localState.spinner}
-                          onClick={onViewAdvBill}
-                        >
-                          {localState.spinner && (
-                            <Spinner
-                              as="span"
-                              animation="grow"
-                              size="sm"
-                              role="status"
-                              aria-hidden="true"
-                            />
-                          )}
-                          View Advance Bill
-                        </Button>
-                      </div>
-                      <div className="col-md-6">
-                        <Button variant="danger" onClick={onViewOrderBill}>
-                          View Order Bill
-                        </Button>
-                      </div>
+                    <div className="btnCon">
+                      <Button
+                        variant="danger  me-3"
+                        disabled={localState.spinner}
+                        onClick={onViewAdvBill}
+                      >
+                        {localState.spinner && (
+                          <Spinner
+                            as="span"
+                            animation="grow"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                          />
+                        )}
+                        View Advance Bill
+                      </Button>
+                      <Button variant="danger" onClick={onViewOrderBill}>
+                        View Order Bill
+                      </Button>
                     </div>
                   </Form>
                 </div>
@@ -466,7 +466,12 @@ const PaymentScreen = () => {
                   <Card.Text>
                     Signature:{" "}
                     {localState.signImg ? (
-                      <img src={localState.signImg} height={100} width={100} />
+                      <img
+                        src={localState.signImg}
+                        height={100}
+                        width={100}
+                        alt="SignImg"
+                      />
                     ) : null}
                   </Card.Text>
                 </div>
@@ -498,7 +503,7 @@ const PaymentScreen = () => {
                   </div>
                 </div>
                 <h1 className="logoSty">
-                  <img src={ElroiLogo} height={100} />{" "}
+                  <img src={ElroiLogo} height={100} alt="Logo" />{" "}
                   <b>ELROI WEDDING CARDS</b>
                 </h1>
                 <p style={{ textAlign: "center", lineHeight: "1.2" }}>
@@ -680,7 +685,7 @@ const PaymentScreen = () => {
                         {localState.quantity}
                       </td>
                       <td style={{ border: "1px solid #fff" }}>
-                        {localState.advAmount != 0
+                        {localState.advAmount !== 0
                           ? localState.advAmount
                           : null}
                       </td>
@@ -723,6 +728,7 @@ const PaymentScreen = () => {
                           src={localState.signImg}
                           height={100}
                           width={100}
+                          alt="Logo"
                         />
                         <br />
                         <br />
@@ -737,7 +743,7 @@ const PaymentScreen = () => {
             ) : (
               <div id="contentPdf" className="orderForm">
                 <h1 className="logoSty">
-                  <img src={ElroiLogo} height={100} />{" "}
+                  <img src={ElroiLogo} height={100} alt="Logo" />{" "}
                   <b>ELROI WEDDING CARDS</b>
                 </h1>
                 <h5 className="logoHeadTxtOrder">
@@ -1070,6 +1076,7 @@ const PaymentScreen = () => {
                             src={localState.signImg}
                             height={50}
                             width={50}
+                            alt="SignImg"
                           />
                         ) : ( */}
                         <b>{"                                      "}</b>
@@ -1873,6 +1880,7 @@ const PaymentScreen = () => {
                               src={localState.signImg}
                               height={50}
                               width={50}
+                              alt="SignImg"
                             />
                           </span>
                           <br />
