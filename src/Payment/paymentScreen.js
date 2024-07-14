@@ -1,5 +1,14 @@
-import React, { useState, useRef } from "react";
-import { Button, Card, Form, Spinner, Modal } from "react-bootstrap";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Button,
+  ButtonGroup,
+  Card,
+  Form,
+  Spinner,
+  Modal,
+  Table,
+} from "react-bootstrap";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import InputMask from "react-input-mask";
 import CurrencyInput from "react-currency-input-field";
 // import { MongoClient } from "mongodb";
@@ -8,8 +17,10 @@ import jsPDF from "jspdf";
 import moment from "moment";
 import { toWords } from "number-to-words";
 // import { saveAs } from "file-saver";
+import axios from "axios";
 import "./paymentStyles.css";
 import ElroiLogo from "../assets/Images/ElroiLogo.png";
+import Icon from "../Icons/icons";
 
 const PaymentScreen = () => {
   const refNameInput = useRef(null);
@@ -35,7 +46,106 @@ const PaymentScreen = () => {
     pdfModal: false,
     contentPdf: false,
     pdfLink: "",
+    totalCount: 0,
+    orderNumber: "",
+    customerListArr: [],
+    activeTab: "AddCustomer",
+    successModal: false,
   });
+
+  const API_URL = "https://api.elroiweddingcards.com";
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = () => {
+    axios
+      .get(`${API_URL}/GET_LIST`)
+      .then((response) =>
+        setLocalState((ls) => ({
+          ...ls,
+          totalCount: response.data.length,
+          orderNumber: `EWC-${moment().format("YYYYMMDD")}-${
+            response.data.length + 1
+          }`,
+          name: "",
+          phone: "",
+          email: "",
+          cardCode: "",
+          quantity: "",
+          totalAmount: 0,
+          advAmount: 0,
+          balAmount: 0,
+          signImg: "",
+          date: moment(new Date()).format("DD-MM-YYYY"),
+          amtWords: "",
+          spinner: false,
+          pdfModal: false,
+          contentPdf: false,
+          pdfLink: "",
+          customerListArr: response.data,
+        }))
+      )
+      .catch((error) => console.log(error));
+  };
+
+  const saveCustomer = () => {
+    if (localState.name === "") {
+      alert("Please enter the name");
+      refNameInput?.current?.focus();
+    } else if (localState.phone === "") {
+      alert("Please enter the phone number");
+      refPhoneInput?.current?.focus();
+    } else if (localState.phone.length < 10) {
+      alert("Please enter the valid phone number");
+      refPhoneInput?.current?.focus();
+    } else if (localState.email === "") {
+      alert("Please enter the mail id");
+      refEmailInput?.current?.focus();
+    } else if (!localState.email.includes("@")) {
+      alert("Please enter the valid @gmail id");
+      refEmailInput?.current?.focus();
+    } else if (localState.cardCode === "") {
+      alert("Please enter the card code");
+      refCardCodeInput?.current?.focus();
+    } else if (localState.quantity === "") {
+      alert("Please enter the qty");
+      refQtyInput?.current?.focus();
+    } else if (localState.totalAmount === 0) {
+      alert("Please enter the total amount");
+      refTotalInput?.current?.focus();
+    } else {
+      const jsonData = {
+        cusName: localState.name,
+        cusPhone: localState.phone,
+        cusOrderNo: localState.orderNumber,
+        cusEmail: localState.email,
+        cardCode: localState.cardCode,
+        cardQty: localState.quantity,
+        totalAmount: localState.totalAmount,
+        advAmount: localState.advAmount,
+      };
+      axios
+        .post(`${API_URL}/ADD_CUSTOMER`, jsonData)
+        .then((response) => {
+          console.log("text-center text-md-left", response);
+          setLocalState((ls) => ({
+            ...ls,
+            spinner: true,
+            successModal: true,
+          }));
+          const PDFURL = `https://api.elroiweddingcards.com/PDF?cusPhone=${localState.phone}`;
+          // Set the URL in the state
+          const url = `https://wa.me/${
+            localState.phone
+          }?text=${encodeURIComponent(PDFURL)}`;
+          window.open(url, "_blank");
+          loadData();
+        })
+        .catch((error) => console.log(error));
+    }
+  };
 
   const handleClose = () =>
     setLocalState((ls) => ({
@@ -84,77 +194,19 @@ const PaymentScreen = () => {
   };
 
   const onViewAdvBill = () => {
-    if (localState.name === "") {
-      alert("Please enter the name");
-      refNameInput?.current?.focus();
-    } else if (localState.phone === "") {
-      alert("Please enter the phone number");
-      refPhoneInput?.current?.focus();
-    } else if (localState.phone.length < 10) {
-      alert("Please enter the valid phone number");
-      refPhoneInput?.current?.focus();
-    } else if (localState.email === "") {
-      alert("Please enter the mail id");
-      refEmailInput?.current?.focus();
-    } else if (!localState.email.includes("@")) {
-      alert("Please enter the valid @gmail id");
-      refEmailInput?.current?.focus();
-    } else if (localState.cardCode === "") {
-      alert("Please enter the card code");
-      refCardCodeInput?.current?.focus();
-    } else if (localState.quantity === "") {
-      alert("Please enter the qty");
-      refQtyInput?.current?.focus();
-    } else if (localState.totalAmount === 0) {
-      alert("Please enter the total amount");
-      refTotalInput?.current?.focus();
-    } else if (localState.signImg === "") {
-      alert("Please upload signImg");
-      refSignInput?.current?.focus();
-    } else {
-      setLocalState((ls) => ({
-        ...ls,
-        pdfModal: true,
-        contentPdf: true,
-      }));
-    }
+    setLocalState((ls) => ({
+      ...ls,
+      pdfModal: true,
+      contentPdf: true,
+    }));
   };
 
   const onViewOrderBill = () => {
-    if (localState.name === "") {
-      alert("Please enter the name");
-      refNameInput?.current?.focus();
-    } else if (localState.phone === "") {
-      alert("Please enter the phone number");
-      refPhoneInput?.current?.focus();
-    } else if (localState.phone.length < 10) {
-      alert("Please enter the valid phone number");
-      refPhoneInput?.current?.focus();
-    } else if (localState.email === "") {
-      alert("Please enter the mail id");
-      refEmailInput?.current?.focus();
-    } else if (!localState.email.includes("@")) {
-      alert("Please enter the valid @gmail id");
-      refEmailInput?.current?.focus();
-    } else if (localState.cardCode === "") {
-      alert("Please enter the card code");
-      refCardCodeInput?.current?.focus();
-    } else if (localState.quantity === "") {
-      alert("Please enter the qty");
-      refQtyInput?.current?.focus();
-    } else if (localState.totalAmount === 0) {
-      alert("Please enter the total amount");
-      refTotalInput?.current?.focus();
-    } else if (localState.signImg === "") {
-      alert("Please upload signImg");
-      refSignInput?.current?.focus();
-    } else {
-      setLocalState((ls) => ({
-        ...ls,
-        pdfModal: true,
-        contentPdf: false,
-      }));
-    }
+    setLocalState((ls) => ({
+      ...ls,
+      pdfModal: true,
+      contentPdf: false,
+    }));
   };
 
   const convertToPdf = async () => {
@@ -252,230 +304,345 @@ const PaymentScreen = () => {
         <div className="container">
           <Card>
             <Card.Header>
-              <Card.Title>Customer Details</Card.Title>
+              <ButtonGroup aria-label="Basic example">
+                <Button
+                  variant={
+                    localState.activeTab === "AddCustomer" ? "danger" : "dark"
+                  }
+                  type="button"
+                  onClick={() =>
+                    setLocalState((ls) => ({
+                      ...ls,
+                      activeTab: "AddCustomer",
+                    }))
+                  }
+                >
+                  Add Customer
+                </Button>
+                <Button
+                  variant={
+                    localState.activeTab === "CustomerList" ? "danger" : "dark"
+                  }
+                  type="button"
+                  onClick={() =>
+                    setLocalState((ls) => ({
+                      ...ls,
+                      activeTab: "CustomerList",
+                    }))
+                  }
+                >
+                  Customer List
+                </Button>
+              </ButtonGroup>
             </Card.Header>
             <Card.Body>
-              <div className="row">
-                <div className="container col-md-9">
-                  <Form>
-                    <Form.Group controlId="name">
-                      <div className="row align-items-center  m-3">
-                        <div className="col-md-12">
-                          <Form.Control
-                            type="text"
-                            placeholder="Customer Name"
-                            value={localState.name}
-                            ref={refNameInput}
-                            onChange={(e) =>
-                              setLocalState((ls) => ({
-                                ...ls,
-                                name: e.target.value,
-                              }))
-                            }
-                          />
-                        </div>
-                      </div>
-                    </Form.Group>
-                    <Form.Group controlId="phone">
-                      <div className="row align-items-center  m-3">
-                        <div className="col-md-12">
-                          <InputMask
-                            mask="9999999999"
-                            maskChar={null}
-                            value={localState.phone}
-                            onChange={(e) =>
-                              setLocalState((ls) => ({
-                                ...ls,
-                                phone: e.target.value,
-                              }))
-                            }
-                          >
-                            {(inputProps) => (
+              {localState.activeTab === "CustomerList" ? (
+                <>
+                  <Card.Title>
+                    Customer Details | Total Count : ({localState.totalCount})
+                  </Card.Title>
+                  <Table striped bordered hover>
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Order No</th>
+                        <th>Card Code</th>
+                        <th>Qty</th>
+                        <th>Adv Amt</th>
+                        <th>Total Amt</th>
+                        <th>CreatedOn</th>
+                        {/* <th>View</th> */}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {localState.customerListArr &&
+                      localState.customerListArr.length > 0
+                        ? localState.customerListArr.map((item, index) => (
+                            <tr key={item.customerID}>
+                              <td>{index + 1}</td>
+                              <td>{item.cus_name ? item.cus_name : "-"}</td>
+                              <td>{item.cus_phone ? item.cus_phone : "-"}</td>
+                              <td>{item.cus_email ? item.cus_email : "-"}</td>
+                              <td>
+                                {item.cus_OrderNo ? item.cus_OrderNo : "-"}
+                              </td>
+                              <td>
+                                {item.cus_cardCode ? item.cus_cardCode : "-"}
+                              </td>
+                              <td>{item.cus_qty ? item.cus_qty : "-"}</td>
+                              <td>
+                                {item.cus_advAmount ? item.cus_advAmount : "-"}
+                              </td>
+                              <td>
+                                {item.cus_totalAmount
+                                  ? item.cus_totalAmount
+                                  : "-"}
+                              </td>
+                              <td>
+                                {item.createdOn
+                                  ? moment(item.createdOn).format(
+                                      "DD-MM-YYYY hh:mm:ss"
+                                    )
+                                  : "-"}
+                              </td>
+                              {/* <td
+                                style={{
+                                  textAlign: "center",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <i
+                                  className="bi bi-eye"
+                                  style={{
+                                    fontSize: "1.5rem",
+                                  }}
+                                ></i>
+                              </td> */}
+                            </tr>
+                          ))
+                        : "No Customer List Found"}
+                    </tbody>
+                  </Table>
+                </>
+              ) : (
+                <>
+                  <Card.Title>Add Customer</Card.Title>
+                  <div className="row">
+                    <div className="container col-md-9">
+                      <Form>
+                        <Form.Group controlId="name">
+                          <div className="row align-items-center  m-3">
+                            <div className="col-md-12">
                               <Form.Control
-                                {...inputProps}
-                                placeholder="Enter number"
-                                ref={refPhoneInput}
+                                type="text"
+                                placeholder="Customer Name"
+                                value={localState.name}
+                                ref={refNameInput}
+                                onChange={(e) =>
+                                  setLocalState((ls) => ({
+                                    ...ls,
+                                    name: e.target.value,
+                                  }))
+                                }
                               />
-                            )}
-                          </InputMask>
-                        </div>
-                      </div>
-                    </Form.Group>
-                    <Form.Group controlId="email">
-                      <div className="row align-items-center  m-3">
-                        <div className="col-md-12">
-                          <Form.Control
-                            type="mail"
-                            placeholder="Customer mail"
-                            value={localState.email}
-                            ref={refEmailInput}
-                            onChange={(e) =>
-                              setLocalState((ls) => ({
-                                ...ls,
-                                email: e.target.value,
-                              }))
-                            }
-                          />
-                        </div>
-                      </div>
-                    </Form.Group>
-                    <Form.Group controlId="cardCode">
-                      <div className="row align-items-center  m-3">
-                        <div className="col-md-12">
-                          <Form.Control
-                            type="text"
-                            placeholder="Card Code"
-                            ref={refCardCodeInput}
-                            value={localState.cardCode}
-                            onChange={(e) =>
-                              setLocalState((ls) => ({
-                                ...ls,
-                                cardCode: e.target.value,
-                              }))
-                            }
-                          />
-                        </div>
-                      </div>
-                    </Form.Group>
-                    <Form.Group controlId="quantity">
-                      <div className="row align-items-center  m-3">
-                        <div className="col-md-12">
-                          <InputMask
-                            mask="9999999999"
-                            maskChar={null}
-                            value={localState.quantity}
-                            onChange={(e) =>
-                              setLocalState((ls) => ({
-                                ...ls,
-                                quantity: e.target.value,
-                              }))
-                            }
-                          >
-                            {(inputProps) => (
+                            </div>
+                          </div>
+                        </Form.Group>
+                        <Form.Group controlId="phone">
+                          <div className="row align-items-center  m-3">
+                            <div className="col-md-12">
+                              <InputMask
+                                mask="9999999999"
+                                maskChar={null}
+                                value={localState.phone}
+                                onChange={(e) =>
+                                  setLocalState((ls) => ({
+                                    ...ls,
+                                    phone: e.target.value,
+                                  }))
+                                }
+                              >
+                                {(inputProps) => (
+                                  <Form.Control
+                                    {...inputProps}
+                                    placeholder="Enter number"
+                                    ref={refPhoneInput}
+                                  />
+                                )}
+                              </InputMask>
+                            </div>
+                          </div>
+                        </Form.Group>
+                        <Form.Group controlId="email">
+                          <div className="row align-items-center  m-3">
+                            <div className="col-md-12">
                               <Form.Control
-                                {...inputProps}
-                                placeholder="Enter qty"
-                                ref={refQtyInput}
+                                type="mail"
+                                placeholder="Customer mail"
+                                value={localState.email}
+                                ref={refEmailInput}
+                                onChange={(e) =>
+                                  setLocalState((ls) => ({
+                                    ...ls,
+                                    email: e.target.value,
+                                  }))
+                                }
                               />
-                            )}
-                          </InputMask>
-                        </div>
-                      </div>
-                    </Form.Group>
-                    <Form.Group controlId="amount">
-                      <div className="row align-items-center  m-3">
-                        <div className="col-md-4">
-                          <Form.Label>Total Payable Amount</Form.Label>
-                          <CurrencyInput
-                            prefix="₹"
-                            decimalSeparator="."
-                            thousandSeparator=","
-                            allowNegativeValue={false}
-                            decimalsLimit={2}
-                            className="form-control"
-                            placeholder="Total Payable amount"
-                            value={localState.totalAmount}
-                            ref={refTotalInput}
-                            onChange={(e) =>
-                              balAmountCal("TOTAL", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="col-md-4">
-                          <Form.Label>Advance Amount</Form.Label>
-                          <CurrencyInput
-                            prefix="₹"
-                            decimalSeparator="."
-                            thousandSeparator=","
-                            allowNegativeValue={false}
-                            decimalsLimit={2}
-                            className="form-control"
-                            placeholder="Advance amount"
-                            value={localState.advAmount}
-                            onChange={(e) =>
-                              balAmountCal("ADV", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div className="col-md-4">
-                          <Form.Label>Balance Amount</Form.Label>
-                          <CurrencyInput
-                            prefix="₹"
-                            disabled
-                            decimalSeparator="."
-                            thousandSeparator=","
-                            allowNegativeValue={false}
-                            decimalsLimit={2}
-                            className="form-control"
-                            placeholder="Balance amount"
-                            value={localState.balAmount}
-                          />
-                        </div>
-                      </div>
-                    </Form.Group>
-                    <Form.Group controlId="signImg">
-                      <div className="row align-items-center  m-3">
-                        <div className="col-md-12">
-                          <Form.Control
-                            ref={refSignInput}
-                            type="file"
-                            onChange={onSignUpload}
-                          />
-                        </div>
-                      </div>
-                    </Form.Group>
+                            </div>
+                          </div>
+                        </Form.Group>
+                        <Form.Group controlId="cardCode">
+                          <div className="row align-items-center  m-3">
+                            <div className="col-md-12">
+                              <Form.Control
+                                type="text"
+                                placeholder="Card Code"
+                                ref={refCardCodeInput}
+                                value={localState.cardCode}
+                                onChange={(e) =>
+                                  setLocalState((ls) => ({
+                                    ...ls,
+                                    cardCode: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+                          </div>
+                        </Form.Group>
+                        <Form.Group controlId="quantity">
+                          <div className="row align-items-center  m-3">
+                            <div className="col-md-12">
+                              <InputMask
+                                mask="9999999999"
+                                maskChar={null}
+                                value={localState.quantity}
+                                onChange={(e) =>
+                                  setLocalState((ls) => ({
+                                    ...ls,
+                                    quantity: e.target.value,
+                                  }))
+                                }
+                              >
+                                {(inputProps) => (
+                                  <Form.Control
+                                    {...inputProps}
+                                    placeholder="Enter qty"
+                                    ref={refQtyInput}
+                                  />
+                                )}
+                              </InputMask>
+                            </div>
+                          </div>
+                        </Form.Group>
+                        <Form.Group controlId="amount">
+                          <div className="row align-items-center  m-3">
+                            <div className="col-md-4">
+                              <Form.Label>Total Payable Amount</Form.Label>
+                              <CurrencyInput
+                                prefix="₹"
+                                decimalSeparator="."
+                                thousandSeparator=","
+                                allowNegativeValue={false}
+                                decimalsLimit={2}
+                                className="form-control"
+                                placeholder="Total Payable amount"
+                                value={localState.totalAmount}
+                                ref={refTotalInput}
+                                onChange={(e) =>
+                                  balAmountCal("TOTAL", e.target.value)
+                                }
+                              />
+                            </div>
+                            <div className="col-md-4">
+                              <Form.Label>Advance Amount</Form.Label>
+                              <CurrencyInput
+                                prefix="₹"
+                                decimalSeparator="."
+                                thousandSeparator=","
+                                allowNegativeValue={false}
+                                decimalsLimit={2}
+                                className="form-control"
+                                placeholder="Advance amount"
+                                value={localState.advAmount}
+                                onChange={(e) =>
+                                  balAmountCal("ADV", e.target.value)
+                                }
+                              />
+                            </div>
+                            <div className="col-md-4">
+                              <Form.Label>Balance Amount</Form.Label>
+                              <CurrencyInput
+                                prefix="₹"
+                                disabled
+                                decimalSeparator="."
+                                thousandSeparator=","
+                                allowNegativeValue={false}
+                                decimalsLimit={2}
+                                className="form-control"
+                                placeholder="Balance amount"
+                                value={localState.balAmount}
+                              />
+                            </div>
+                          </div>
+                        </Form.Group>
+                        <Form.Group controlId="signImg">
+                          <div className="row align-items-center  m-3">
+                            <div className="col-md-12">
+                              <Form.Control
+                                ref={refSignInput}
+                                type="file"
+                                onChange={onSignUpload}
+                              />
+                            </div>
+                          </div>
+                        </Form.Group>
 
-                    <div className="btnCon">
-                      <Button
-                        variant="danger  me-3"
-                        disabled={localState.spinner}
-                        onClick={onViewAdvBill}
-                      >
-                        {localState.spinner && (
-                          <Spinner
-                            as="span"
-                            animation="grow"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                          />
-                        )}
-                        View Advance Bill
-                      </Button>
-                      <Button variant="danger" onClick={onViewOrderBill}>
-                        View Order Bill
-                      </Button>
+                        <div className="btnCon">
+                          {/* <Button
+                            variant="danger  me-3"
+                            onClick={onViewAdvBill}
+                          >
+                            View Advance Bill
+                          </Button>
+                          <Button
+                            variant="danger me-3"
+                            onClick={onViewOrderBill}
+                          >
+                            View Order Bill
+                          </Button> */}
+
+                          <Button
+                            variant="danger"
+                            disabled={localState.spinner}
+                            onClick={saveCustomer}
+                          >
+                            {localState.spinner && (
+                              <Spinner
+                                as="span"
+                                animation="grow"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                              />
+                            )}
+                            Save
+                          </Button>
+                        </div>
+                      </Form>
                     </div>
-                  </Form>
-                </div>
-                <div className="container col-md-3 border border-primary rounded bg-light text-dark align-content-center">
-                  <Card.Text>Name: {localState.name}</Card.Text>
-                  <Card.Text>Phone: +91 {localState.phone}</Card.Text>
-                  <Card.Text>Email: {localState.email}</Card.Text>
-                  <Card.Text>Card Code: {localState.cardCode}</Card.Text>
-                  <Card.Text>Quantity: {localState.quantity}</Card.Text>
-                  <Card.Text>
-                    Total Amount: ₹ {localState.totalAmount}
-                  </Card.Text>
-                  <Card.Text>
-                    Advance Amount: ₹ {localState.advAmount}
-                  </Card.Text>
-                  <Card.Text>
-                    Balance Amount: ₹ {localState.balAmount}
-                  </Card.Text>
-                  <Card.Text>
-                    Signature:{" "}
-                    {localState.signImg ? (
-                      <img
-                        src={localState.signImg}
-                        height={100}
-                        width={100}
-                        alt="SignImg"
-                      />
-                    ) : null}
-                  </Card.Text>
-                </div>
-              </div>
+                    <div className="container col-md-3 border border-primary rounded bg-light text-dark align-content-center">
+                      <Card.Text>Name: {localState.name}</Card.Text>
+                      <Card.Text>Phone: +91 {localState.phone}</Card.Text>
+                      <Card.Text>Email: {localState.email}</Card.Text>
+                      <Card.Text>Card Code: {localState.cardCode}</Card.Text>
+                      <Card.Text>Quantity: {localState.quantity}</Card.Text>
+                      <Card.Text>
+                        Total Amount: ₹ {localState.totalAmount}
+                      </Card.Text>
+                      <Card.Text>
+                        Advance Amount: ₹ {localState.advAmount}
+                      </Card.Text>
+                      <Card.Text>
+                        Balance Amount: ₹ {localState.balAmount}
+                      </Card.Text>
+                      <Card.Text>
+                        Signature:{" "}
+                        {localState.signImg ? (
+                          <img
+                            src={localState.signImg}
+                            height={100}
+                            width={100}
+                            alt="SignImg"
+                          />
+                        ) : null}
+                      </Card.Text>
+                    </div>
+                  </div>
+                </>
+              )}
             </Card.Body>
           </Card>
         </div>
@@ -1912,6 +2079,40 @@ const PaymentScreen = () => {
               ></iframe>
             )}
           </Modal.Footer>
+        </Modal>
+
+        <Modal
+          show={localState.successModal}
+          onHide={() =>
+            setLocalState((ls) => ({
+              ...ls,
+              successModal: false,
+            }))
+          }
+          size="md"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Bill Status</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="modalSty">
+              <Icon name="check-circle" size="8rem" />{" "}
+              <h4>Bill Added Successfully</h4>
+              <Button
+                variant="success"
+                size="lg"
+                onClick={() =>
+                  setLocalState((ls) => ({
+                    ...ls,
+                    activeTab: "CustomerList",
+                    successModal: false,
+                  }))
+                }
+              >
+                Done
+              </Button>
+            </div>
+          </Modal.Body>
         </Modal>
       </body>
     </div>

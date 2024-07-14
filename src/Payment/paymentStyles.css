@@ -3,6 +3,11 @@
   justify-content: center;
 }
 
+.modalSty {
+  text-align: center;
+  color: #4a934a;
+}
+
 @media (max-width: 768px) {
   .mobLogoImg {
     height: 80px;
